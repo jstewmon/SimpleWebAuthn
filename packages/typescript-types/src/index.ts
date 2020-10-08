@@ -12,6 +12,7 @@ export interface PublicKeyCredentialCreationOptionsJSON
   user: PublicKeyCredentialUserEntityJSON;
   challenge: Base64URLString;
   excludeCredentials: PublicKeyCredentialDescriptorJSON[];
+  extensions?: CredentialCreationExtensionsInputJSON;
 }
 
 /**
@@ -22,6 +23,7 @@ export interface PublicKeyCredentialRequestOptionsJSON
   extends Omit<PublicKeyCredentialRequestOptions, 'challenge' | 'allowCredentials'> {
   challenge: Base64URLString;
   allowCredentials: PublicKeyCredentialDescriptorJSON[];
+  extensions?: CredentialRequestExtensionsInputJSON;
 }
 
 export interface PublicKeyCredentialDescriptorJSON
@@ -50,6 +52,7 @@ export interface AttestationCredentialJSON
   rawId: Base64URLString;
   response: AuthenticatorAttestationResponseJSON;
   transports?: AuthenticatorTransport[];
+  clientExtensionResults?: CredentialCreationExtensionsOutputJSON;
 }
 
 /**
@@ -67,6 +70,7 @@ export interface AssertionCredentialJSON
   extends Omit<AssertionCredential, 'response' | 'rawId' | 'getClientExtensionResults'> {
   rawId: Base64URLString;
   response: AuthenticatorAssertionResponseJSON;
+  clientExtensionResults?: CredentialRequestExtensionsOutputJSON;
 }
 
 /**
@@ -123,4 +127,79 @@ export interface AuthenticatorAttestationResponseFuture extends AuthenticatorAtt
   getAuthenticatorData?: () => ArrayBuffer;
   getPublicKey?: () => ArrayBuffer;
   getPublicKeyAlgorithm?: () => COSEAlgorithmIdentifier[];
+}
+
+/**
+ * Client Extensions - Attestation (Registration)
+ */
+
+export interface CredentialCreationExtensionsInputJSON {
+  appidExclude?: string;
+  uvm?: boolean;
+  credProps?: {
+    first: Base64URLString;
+    second?: Base64URLString;
+  };
+  prf?: {
+    eval?: {
+      first: Base64URLString;
+      second?: Base64URLString;
+    };
+    evalByCredential?: {
+      [base64CredID: string]: { first: Base64URLString; second?: Base64URLString };
+    };
+  };
+}
+
+export interface CredentialCreationExtensionsOutputJSON {
+  appidExclude?: boolean;
+  uvm?: Array<[number, number, number]>;
+  credProps?: {
+    rk: boolean;
+  };
+  prf?: {
+    enabled?: boolean;
+    results?: {
+      first: Base64URLString;
+      second?: Base64URLString;
+    };
+  };
+}
+
+/**
+ * Client Extensions - Assertion (Authentication)
+ */
+
+export interface CredentialRequestExtensionsInputJSON {
+  appid?: string;
+  uvm?: boolean;
+  prf?: {
+    eval?: {
+      first: Base64URLString;
+      second?: Base64URLString;
+    };
+    evalByCredential?: {
+      [base64CredID: string]: { first: Base64URLString; second?: Base64URLString };
+    };
+  };
+  largeBlob?: {
+    read?: boolean;
+    write?: Base64URLString;
+  };
+}
+
+export interface CredentialRequestExtensionsOutputJSON {
+  appid?: boolean;
+  uvm?: Array<[number, number, number]>;
+  prf?: {
+    enabled?: boolean;
+    results?: {
+      first: Base64URLString;
+      second?: Base64URLString;
+    };
+  };
+  largeBlob?: {
+    blob?: Base64URLString;
+    written?: boolean;
+  };
 }

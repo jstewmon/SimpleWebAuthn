@@ -6,9 +6,9 @@
  */
 
 const https = require('https');
-const fs = require('fs');
 
 const express = require('express');
+const selfsigned = require('selfsigned');
 
 const {
   // Registration ("Attestation")
@@ -273,17 +273,22 @@ app.post('/verify-assertion', (req, res) => {
   res.send({ verified });
 });
 
-https
-  .createServer(
-    {
-      /**
-       * WebAuthn can only be run from https:// URLs. See the README on how to generate this SSL cert and key pair using mkcert
-       */
-      key: fs.readFileSync(`./${rpID}.key`),
-      cert: fs.readFileSync(`./${rpID}.crt`),
-    },
-    app,
-  )
-  .listen(port, host, () => {
-    console.log(`🚀 Server ready at https://${host}:${port}`);
-  });
+selfsigned.generate({ name: 'commonName', value: 'localhost' }, (err, pems) => {
+  if (err) {
+    throw err;
+  }
+  https
+    .createServer(
+      {
+        /**
+         * WebAuthn can only be run from https:// URLs. See the README on how to generate this SSL cert and key pair using mkcert
+         */
+        key: pems.private,
+        cert: pems.cert,
+      },
+      app,
+    )
+    .listen(port, host, () => {
+      console.log(`🚀 Server ready at https://${host}:${port}`);
+    });
+});

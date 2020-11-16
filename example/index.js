@@ -23,6 +23,7 @@ const app = express();
 const host = '0.0.0.0';
 const port = 443;
 
+app.use(require('express-pino-logger')());
 app.use(express.static('./public/'));
 app.use(express.json());
 

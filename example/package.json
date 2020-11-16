@@ -13,6 +13,7 @@
   "dependencies": {
     "@simplewebauthn/server": "0.10.3",
     "express": "^4.17.1",
+    "express-pino-logger": "^5.0.0",
     "node-fetch": "^2.6.0",
     "selfsigned": "^1.10.8"
   },
